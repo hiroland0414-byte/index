@@ -5,6 +5,8 @@
     <title>【完成版】放射線技師・小論文添削プロコーチ</title>
     <link href="https://fonts.googleapis.com/css2?family=Sawarabi+Mincho&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    
     <style>
         :root { --main: #2c3e50; --accent: #e74c3c; --bg: #f8f9fa; }
         body { font-family: "Helvetica Neue", Arial, "Hiragino Sans", sans-serif; background: var(--bg); padding: 20px; line-height: 1.6; color: #333; }
@@ -14,6 +16,21 @@
         label { font-weight: bold; font-size: 14px; color: var(--main); }
         input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 15px; box-sizing: border-box; }
         textarea { height: 300px; margin-top: 5px; }
+
+        /* ★ PDF入力エリアのスタイル ★ */
+        .pdf-input-zone {
+            background: #eef7ff;
+            border: 2px dashed #3498db;
+            padding: 15px;
+            text-align: center;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            transition: 0.3s;
+        }
+        .pdf-input-zone:hover { background: #e1f0fa; }
+        .pdf-input-zone label { color: #2980b9; cursor: pointer; display: block; }
+        .pdf-input-zone input { font-size: 12px; margin-top: 5px; border: none; background: transparent; }
+
         .counter-box { text-align: right; font-size: 14px; font-weight: bold; color: #555; margin-top: 5px; }
         .btn-group { display: flex; gap: 10px; margin-top: 20px; }
         button { flex: 1; padding: 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; transition: 0.2s; }
@@ -21,7 +38,7 @@
         .btn-pdf { background: #27ae60; color: white; display: none; }
         button:hover { opacity: 0.9; }
 
-        /* 結果表示・PDFレイアウト */
+        /* 結果表示・PDFレイアウト（変更なし） */
         #result-container { margin-top: 30px; display: none; border-top: 2px solid #eee; padding-top: 20px; }
         .pdf-content { color: #000; background: white; padding: 0; margin: 0; width: 100%; } 
         .pdf-header { border-bottom: 2px solid #333; margin-bottom: 15px; padding-bottom: 5px; margin-top: 0; }
@@ -30,17 +47,16 @@
         .pdf-item { margin-bottom: 12px; padding: 0 10px; page-break-inside: avoid; }
         .pdf-item strong { color: var(--accent); font-size: 15px; display: block; margin-bottom: 4px; }
 
-        /* ★ フィードバック文を「手書き風」かつ「12px」に設定 ★ */
+        /* フィードバック文 12px・手書き風 */
         .pdf-item p, .eval-msg { 
             font-family: 'Sawarabi Mincho', serif; 
             margin: 0; 
-            font-size: 12px; /* 14pxから12pxへ縮小 */
+            font-size: 12px;
             text-align: justify; 
             line-height: 1.6; 
             color: #1a252f;
         }
 
-        /* 構成バランス診断用のスタイル */
         .diag-container { margin: 10px 0 20px 10px; font-size: 14px; }
         .chart-box { margin-bottom: 15px; }
         .chart-label { font-weight: bold; font-size: 12px; margin-bottom: 4px; display: block; }
@@ -81,8 +97,13 @@
         <div class="counter-box" style="align-self: end;">現在：<span id="currentCount">0</span> 文字</div>
     </div>
 
+    <div class="pdf-input-zone">
+        <label for="pdfFile"><strong>📄 デジタル作成されたPDFから本文を読み込む</strong></label>
+        <input type="file" id="pdfFile" accept="application/pdf" onchange="handlePDF(this)">
+    </div>
+
     <label>小論文本文</label>
-    <textarea id="essay" oninput="updateCounter()"></textarea>
+    <textarea id="essay" oninput="updateCounter()" placeholder="ここに直接入力するか、上のボタンからPDFを選択してください"></textarea>
 
     <div class="btn-group">
         <button class="btn-run" onclick="startCoach()">添削を実行する</button>
@@ -95,10 +116,42 @@
 </div>
 
 <script>
+// PDF読み取りライブラリの設定
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
+// ★ PDFを読み込んでテキスト化する関数 ★
+async function handlePDF(input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async function() {
+        const typedarray = new Uint8Array(this.result);
+        try {
+            const pdf = await pdfjsLib.getDocument(typedarray).promise;
+            let extractedText = "";
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const textContent = await page.getTextContent();
+                const pageText = textContent.items.map(item => item.str).join("");
+                extractedText += pageText + "\n";
+            }
+            document.getElementById('essay').value = extractedText.trim();
+            updateCounter();
+            alert("PDFから文字を読み込みました。内容を確認してください。");
+        } catch (error) {
+            console.error(error);
+            alert("PDFの読み取りに失敗しました。デジタルデータ（Word等から保存したもの）か確認してください。");
+        }
+    };
+    reader.readAsArrayBuffer(file);
+}
+
 function updateCounter() {
     document.getElementById('currentCount').textContent = document.getElementById('essay').value.length;
 }
 
+// 添削ロジック（変更なし）
 function startCoach() {
     const hosp = document.getElementById('hosp').value || "津田沼中央総合病院";
     const theme = document.getElementById('theme').value || "10年後の放射線技師としての在り方";
@@ -210,6 +263,7 @@ function startCoach() {
     window.scrollTo({ top: document.getElementById('result-container').offsetTop, behavior: 'smooth' });
 }
 
+// PDF保存関数（変更なし）
 function exportPDF() {
     const element = document.getElementById('pdf-area');
     const opt = {
