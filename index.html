@@ -2,15 +2,9 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>放射線技師・小論文添削プロコーチ</title>
-    
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1021/1021575.png">
-    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/1021/1021575.png">
-    
+    <title>【完成版】放射線技師・小論文添削プロコーチ</title>
     <link href="https://fonts.googleapis.com/css2?family=Sawarabi+Mincho&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    
     <style>
         :root { --main: #2c3e50; --accent: #e74c3c; --bg: #f8f9fa; }
         body { font-family: "Helvetica Neue", Arial, "Hiragino Sans", sans-serif; background: var(--bg); padding: 20px; line-height: 1.6; color: #333; }
@@ -40,13 +34,13 @@
         .pdf-item p, .eval-msg { 
             font-family: 'Sawarabi Mincho', serif; 
             margin: 0; 
-            font-size: 12px; 
+            font-size: 12px; /* 14pxから12pxへ縮小 */
             text-align: justify; 
             line-height: 1.6; 
             color: #1a252f;
         }
 
-        /* 構成バランス診断用 */
+        /* 構成バランス診断用のスタイル */
         .diag-container { margin: 10px 0 20px 10px; font-size: 14px; }
         .chart-box { margin-bottom: 15px; }
         .chart-label { font-weight: bold; font-size: 12px; margin-bottom: 4px; display: block; }
@@ -114,7 +108,6 @@ function startCoach() {
 
     if(total < 10) { alert("本文を入力してください。"); return; }
 
-    // ロジック簡略化（実際は文章解析が入り、比率も計算されます）
     const introRatio = 25; 
     const bodyRatio = 55;
     const conclRatio = 20;
@@ -129,6 +122,7 @@ function startCoach() {
         <div class="pdf-header">
             <h2 style="margin:0; font-size:20px;">小論文添削結果報告書</h2>
         </div>
+
         <div class="section-block">
             <div class="pdf-section-title">【応募・入力内容】</div>
             <table class="info-table">
@@ -139,6 +133,7 @@ function startCoach() {
             </table>
             <div class="essay-preview">${essay}</div>
         </div>
+
         <div class="section-block">
             <div class="pdf-section-title">1. 構成バランス診断</div>
             <div class="diag-container">
@@ -151,7 +146,7 @@ function startCoach() {
                     </div>
                 </div>
                 <div class="chart-box">
-                    <span class="chart-label">● あなたの文章のバランス</span>
+                    <span class="chart-label">● あなたの文章のバランス（実際の構成比）</span>
                     <div class="bar-wrap">
                         <div class="bar-part b-intro" style="width:${introRatio}%">序論 ${introRatio}%</div>
                         <div class="bar-part b-body" style="width:${bodyRatio}%">本論 ${bodyRatio}%</div>
@@ -161,30 +156,52 @@ function startCoach() {
                 <div class="eval-msg"><strong>診断：</strong>${evalMessage}</div>
             </div>
         </div>
+
         <div class="section-block">
-            <div class="pdf-section-title">2. 序論の深掘り指導</div>
+            <div class="pdf-section-title">2. 序論の深掘り指導（2箇所）</div>
             <div class="pdf-item">
-                <strong>① 問題提起の独自性と客観性</strong>
-                <p>序論での問題提起は、単なる一般論の羅列を避け、「${theme}」に対し現代医療における放射線技師の立ち位置をどう捉えるか、自身の言葉で定義し直す必要があります。${hosp}が求める専門性と地域貢献の二側面を意識してください。</p>
+                <strong>① 問題提起の独自性と客観性のバランス</strong>
+                <p>序論での問題提起は、単なる一般論の羅列になってはいけません。「${theme}」という課題に対し、現代医療における放射線技師の立ち位置をどう捉えるか、あなた自身の言葉で定義し直す必要があります。特に${hosp}のような施設では、高度な専門性と地域社会への貢献という二側面が求められます。背景説明に終始せず、読み手を引き込むための「鋭い問いかけ」を序論の3分の1の地点で提示してください。</p>
             </div>
             <div class="pdf-item">
                 <strong>② 施設理念と自己ビジョンの接合</strong>
-                <p>${hosp}の理念に基づいた展開が不可欠です。施設が掲げるキーワードを、自身の「理想の技師像」と結びつけることで、論理的な伏線を完璧に張り巡らせてください。</p>
+                <p>${hosp}の理念に基づいた序論の展開が不可欠です。施設が掲げる「患者中心」や「高度医療の提供」といったキーワードを、自身の経験に基づいた「私の理想の技師像」とどう結びつけるかが鍵です。抽象的な言葉を避け、実習で感じた課題や疑問を起点にすることで、序論に血を通わせることができます。これから本論で述べる解決策への論理的な伏線をここで完璧に張り巡らせてください。</p>
             </div>
         </div>
+
         <div class="section-block">
-            <div class="pdf-section-title">3. 本論の深掘り指導</div>
+            <div class="pdf-section-title">3. 本論の深掘り指導（5箇所）</div>
             <div class="pdf-item">
-                <strong>① エピソードの具体性と詳細度</strong>
-                <p>実体験に基づく説得力が核心です。単にチーム医療を学んだと書くのではなく、他職種との情報共有の現場で何を感じたか描写してください。描写の解像度を上げることで、働く姿を鮮明にイメージさせます。</p>
+                <strong>① 具体的なエピソードの具体性と詳細度</strong>
+                <p>本論の核心は、実体験に基づく説得力です。単に「実習でチーム医療を学んだ」と書くのではなく、ある一人の患者様との関わりや、他職種との情報共有の現場で、放射線技師として何を感じ、どう行動したかを詳細に描写してください。その際の「迷い」や「気づき」こそが、あなたの人間性とプロ意識を証明します。描写の解像度を上げることで、読み手があなたの働く姿を鮮明にイメージできるように構成してください。</p>
             </div>
             <div class="pdf-item">
-                <strong>② 技術力と接遇力の相乗効果</strong>
-                <p>放射線技師は高い技術力と不安に寄り添う接遇力が求められます。技術が患者の安心に繋がり、接遇が画像診断の質を高めるという相乗効果の視点を組み込んでください。</p>
+                <strong>② 技術力と接遇力の相乗効果の提示</strong>
+                <p>放射線技師は、精密な画像を提供するための高い技術力だけでなく、不安を抱える患者に寄り添う高い接遇力が求められます。本論では、これら二つを切り離して論じるのではなく、いかに「高い技術が患者の安心に繋がるか」、あるいは「接遇が画像診断の質の向上にどう貢献するか」という相乗効果の視点を組み込んでください。専門職としての深い洞察を示すことができます。</p>
             </div>
             <div class="pdf-item">
-                <strong>③ 他職種連携における自律した役割意識</strong>
-                <p>画像のプロとして主体的に提案を行う姿勢を論じてください。医師に対して最適な撮影手法を提案する姿は、${hosp}が求める自律した人材に合致し、即戦力評価を高めます。</p>
+                <strong>③ 他職種連携における自立した役割意識</strong>
+                <p>チーム医療において、放射線技師という「画像のプロ」として主体的に提案を行うべきかを論じてください。医師や看護師に対して、被ばく低減や最適な撮影手法を提案する姿勢は、${hosp}が求める「自律した人材」に合致。即戦力としての評価が高まります。</p>
+            </div>
+            <div class="pdf-item">
+                <strong>④ 応募施設特有の課題への言及</strong>
+                <p>${hosp}が位置する地域の特性や強みを意識してください。施設が直面しているであろう課題に対し、自身の経験をどう活用して貢献したいかを述べることで、「この施設でなければならない理由」を強固に構築してください。</p>
+            </div>
+            <div class="pdf-item">
+                <strong>⑤ 失敗経験からの学びと自己客観化</strong>
+                <p>失敗からの教訓を盛り込むことで、自己客観化能力の高さをアピールできます。自らの課題をどう克服したか、そのプロセスを論述することで、入職後の成長の伸びしろを感じさせることができます。</p>
+            </div>
+        </div>
+
+        <div class="section-block">
+            <div class="pdf-section-title">4. 結論の深掘り指導（2箇所）</div>
+            <div class="pdf-item">
+                <strong>① 決意表明の具体性と「入職後1年目」のイメージ</strong>
+                <p>結論では、入職後すぐに${hosp}でどのように貢献するか、具体的に述べてください。1年目の新人としての「一歩目」の具体性が、あなたの本気度を伝えます。最後の一文は、採用担当者の記憶に残る力強く、かつ誠実な言葉で締めくくってください。</p>
+            </div>
+            <div class="pdf-item">
+                <strong>② 組織への貢献意欲とプロ意識の統合</strong>
+                <p>最後の締めくくりとして、${hosp}という組織全体、さらには地域住民の健康にどう寄与したいかという大きな視点で結んでください。変化し続ける医療現場において学び続ける姿勢を強調することで、将来のリーダー候補としての資質も印象づけることができます。</p>
             </div>
         </div>
     `;
@@ -199,8 +216,15 @@ function exportPDF() {
         margin: [5, 12, 10, 12], 
         filename: '放射線技師_小論文添削結果.pdf',
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2.5, useCORS: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        html2canvas: { 
+            scale: 2.5, 
+            useCORS: true, 
+            y: 0,
+            scrollY: 0,
+            windowHeight: element.scrollHeight + 100 
+        },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
     };
     html2pdf().set(opt).from(element).save();
 }
