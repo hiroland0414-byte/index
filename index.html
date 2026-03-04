@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>【完成版】放射線技師・小論文添削プロコーチ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sawarabi+Mincho&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         :root { --main: #2c3e50; --accent: #e74c3c; --bg: #f8f9fa; }
@@ -28,7 +29,16 @@
         .pdf-section-title { background: #f0f0f0; padding: 6px 10px; font-weight: bold; border-left: 5px solid var(--main); margin-bottom: 10px; font-size: 17px; }
         .pdf-item { margin-bottom: 12px; padding: 0 10px; page-break-inside: avoid; }
         .pdf-item strong { color: var(--accent); font-size: 15px; display: block; margin-bottom: 4px; }
-        .pdf-item p { margin: 0; font-size: 14px; text-align: justify; line-height: 1.5; }
+
+        /* ★ フィードバック文を「手書き風」かつ「12px」に設定 ★ */
+        .pdf-item p, .eval-msg { 
+            font-family: 'Sawarabi Mincho', serif; 
+            margin: 0; 
+            font-size: 12px; /* 14pxから12pxへ縮小 */
+            text-align: justify; 
+            line-height: 1.6; 
+            color: #1a252f;
+        }
 
         /* 構成バランス診断用のスタイル */
         .diag-container { margin: 10px 0 20px 10px; font-size: 14px; }
@@ -39,7 +49,7 @@
         .b-intro { background: #3498db; }
         .b-body { background: #f1c40f; color: #333; }
         .b-concl { background: #2ecc71; }
-        .eval-msg { background: #fff9e6; border-left: 4px solid #f1c40f; padding: 10px; font-size: 13px; margin-top: 10px; }
+        .eval-msg { background: #fff9e6; border-left: 4px solid #f1c40f; padding: 10px; margin-top: 10px; }
         
         .info-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 13px; }
         .info-table th, .info-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
@@ -194,7 +204,7 @@ function startCoach() {
                 <p>最後の締めくくりとして、${hosp}という組織全体、さらには地域住民の健康にどう寄与したいかという大きな視点で結んでください。変化し続ける医療現場において学び続ける姿勢を強調することで、将来のリーダー候補としての資質も印象づけることができます。</p>
             </div>
         </div>
-        <div style="height: 10px;"></div> `;
+    `;
 
     document.getElementById('pdfBtn').style.display = 'inline-block';
     window.scrollTo({ top: document.getElementById('result-container').offsetTop, behavior: 'smooth' });
@@ -211,7 +221,7 @@ function exportPDF() {
             useCORS: true, 
             y: 0,
             scrollY: 0,
-            windowHeight: element.scrollHeight + 100 // 全体を収めるために高さを確保
+            windowHeight: element.scrollHeight + 100 
         },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
         pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
