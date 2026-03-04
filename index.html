@@ -2,233 +2,115 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>【完成版】放射線技師・小論文添削プロコーチ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>放射線技師・小論文添削プロコーチ</title>
+    
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1021/1021575.png">
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/1021/1021575.png">
     <link href="https://fonts.googleapis.com/css2?family=Sawarabi+Mincho&display=swap" rel="stylesheet">
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+
     <style>
         :root { --main: #2c3e50; --accent: #e74c3c; --bg: #f8f9fa; }
-        body { font-family: "Helvetica Neue", Arial, "Hiragino Sans", sans-serif; background: var(--bg); padding: 20px; line-height: 1.6; color: #333; }
+        body { font-family: "Helvetica Neue", Arial, sans-serif; background: var(--bg); padding: 20px; color: #333; }
         .wrapper { max-width: 900px; margin: auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        h1 { text-align: center; color: var(--main); font-size: 24px; border-bottom: 2px solid var(--main); padding-bottom: 10px; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
-        label { font-weight: bold; font-size: 14px; color: var(--main); }
-        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 15px; box-sizing: border-box; }
-        textarea { height: 300px; margin-top: 5px; }
-        .counter-box { text-align: right; font-size: 14px; font-weight: bold; color: #555; margin-top: 5px; }
+        h1 { text-align: center; color: var(--main); border-bottom: 2px solid var(--main); padding-bottom: 10px; font-size: 22px; }
+        .input-group { margin-bottom: 15px; }
+        label { font-weight: bold; font-size: 14px; display: block; margin-bottom: 5px; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; box-sizing: border-box; }
+        textarea { height: 250px; }
+        .pdf-upload-box { background: #eef7ff; border: 2px dashed #3498db; padding: 15px; text-align: center; border-radius: 5px; margin-bottom: 15px; }
         .btn-group { display: flex; gap: 10px; margin-top: 20px; }
-        button { flex: 1; padding: 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; transition: 0.2s; }
-        .btn-run { background: var(--main); color: white; }
-        .btn-pdf { background: #27ae60; color: white; display: none; }
-        button:hover { opacity: 0.9; }
-
-        /* 結果表示・PDFレイアウト */
-        #result-container { margin-top: 30px; display: none; border-top: 2px solid #eee; padding-top: 20px; }
-        .pdf-content { color: #000; background: white; padding: 0; margin: 0; width: 100%; } 
-        .pdf-header { border-bottom: 2px solid #333; margin-bottom: 15px; padding-bottom: 5px; margin-top: 0; }
-        .section-block { page-break-inside: avoid; margin-bottom: 15px; }
-        .pdf-section-title { background: #f0f0f0; padding: 6px 10px; font-weight: bold; border-left: 5px solid var(--main); margin-bottom: 10px; font-size: 17px; }
-        .pdf-item { margin-bottom: 12px; padding: 0 10px; page-break-inside: avoid; }
-        .pdf-item strong { color: var(--accent); font-size: 15px; display: block; margin-bottom: 4px; }
-
-        /* ★ フィードバック文を「手書き風」かつ「12px」に設定 ★ */
-        .pdf-item p, .eval-msg { 
-            font-family: 'Sawarabi Mincho', serif; 
-            margin: 0; 
-            font-size: 12px; /* 14pxから12pxへ縮小 */
-            text-align: justify; 
-            line-height: 1.6; 
-            color: #1a252f;
-        }
-
-        /* 構成バランス診断用のスタイル */
-        .diag-container { margin: 10px 0 20px 10px; font-size: 14px; }
-        .chart-box { margin-bottom: 15px; }
-        .chart-label { font-weight: bold; font-size: 12px; margin-bottom: 4px; display: block; }
-        .bar-wrap { display: flex; height: 24px; border-radius: 4px; overflow: hidden; border: 1px solid #ddd; width: 100%; }
-        .bar-part { color: white; text-align: center; font-size: 11px; line-height: 24px; font-weight: bold; }
-        .b-intro { background: #3498db; }
-        .b-body { background: #f1c40f; color: #333; }
-        .b-concl { background: #2ecc71; }
-        .eval-msg { background: #fff9e6; border-left: 4px solid #f1c40f; padding: 10px; margin-top: 10px; }
+        button { flex: 1; padding: 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; color: white; transition: 0.2s; }
+        .btn-run { background: var(--main); }
+        .btn-pdf { background: #27ae60; display: none; }
         
-        .info-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 13px; }
-        .info-table th, .info-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        .info-table th { background: #f8f9fa; width: 25%; }
-        .essay-preview { border: 1px solid #eee; padding: 10px; background: #fafafa; font-size: 12px; white-space: pre-wrap; margin-bottom: 20px; color: #444; }
+        /* 添削結果（12px・手書き風） */
+        .pdf-item p, .eval-msg { font-family: 'Sawarabi Mincho', serif; font-size: 12px; line-height: 1.6; text-align: justify; }
+        #result-container { display: none; margin-top: 30px; padding-top: 20px; border-top: 2px solid #eee; }
+        .pdf-section-title { background: #f0f0f0; padding: 8px; font-weight: bold; border-left: 5px solid var(--main); margin: 15px 0 10px; }
     </style>
 </head>
 <body>
 
 <div class="wrapper">
     <h1>放射線技師・小論文添削支援ツール</h1>
-    
-    <div class="grid">
-        <div><label>志望施設名</label><input type="text" id="hosp" placeholder="例：津田沼中央総合病院"></div>
-        <div>
-            <label>病院の区分</label>
-            <select id="hospType">
-                <option value="univ">大学病院・特定機能病院</option>
-                <option value="general" selected>一般総合病院（地域中核）</option>
-                <option value="private">民間・専門クリニック</option>
-            </select>
-        </div>
+
+    <div class="input-group">
+        <label>志望施設名</label>
+        <input type="text" id="hosp" placeholder="例：〇〇大学病院">
     </div>
 
-    <div class="grid"><div style="grid-column: span 2;"><label>小論文テーマ</label><input type="text" id="theme" placeholder="例：10年後の放射線技師としての在り方"></div></div>
-
-    <div class="grid">
-        <div><label>目標文字数</label><input type="number" id="targetCount" value="800"></div>
-        <div class="counter-box" style="align-self: end;">現在：<span id="currentCount">0</span> 文字</div>
+    <div class="pdf-upload-box">
+        <label style="color:#2980b9;">【PDFから入力を選ぶ】</label>
+        <input type="file" id="pdfFile" accept="application/pdf" onchange="readPDF(this)">
+        <p style="font-size: 11px; color: #666; margin-top: 5px;">※PDFを選択すると下の本文にテキストが自動抽出されます</p>
     </div>
 
-    <label>小論文本文</label>
-    <textarea id="essay" oninput="updateCounter()"></textarea>
+    <div class="input-group">
+        <label>小論文本文（直接入力・修正も可）</label>
+        <textarea id="essay" placeholder="ここに文章を入力してください"></textarea>
+    </div>
 
     <div class="btn-group">
         <button class="btn-run" onclick="startCoach()">添削を実行する</button>
-        <button id="pdfBtn" class="btn-pdf" onclick="exportPDF()">評価結果をPDF保存</button>
+        <button id="pdfBtn" class="btn-pdf" onclick="exportPDF()">結果をPDF保存</button>
     </div>
 
     <div id="result-container">
-        <div id="pdf-area" class="pdf-content"></div>
+        <div id="pdf-area"></div>
     </div>
 </div>
 
 <script>
-function updateCounter() {
-    document.getElementById('currentCount').textContent = document.getElementById('essay').value.length;
+// PDF読み取り機能
+async function readPDF(input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async function() {
+        const typedarray = new Uint8Array(this.result);
+        const pdf = await pdfjsLib.getDocument(typedarray).promise;
+        let fullText = "";
+        for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const textContent = await page.getTextContent();
+            fullText += textContent.items.map(item => item.str).join("");
+        }
+        document.getElementById('essay').value = fullText;
+    };
+    reader.readAsArrayBuffer(file);
 }
 
 function startCoach() {
-    const hosp = document.getElementById('hosp').value || "津田沼中央総合病院";
-    const theme = document.getElementById('theme').value || "10年後の放射線技師としての在り方";
-    const target = document.getElementById('targetCount').value;
     const essay = document.getElementById('essay').value;
-    const total = essay.length;
-
-    if(total < 10) { alert("本文を入力してください。"); return; }
-
-    const introRatio = 25; 
-    const bodyRatio = 55;
-    const conclRatio = 20;
-    
-    let evalMessage = "バランスは概ね良好ですが、理想の比率（本論45%）と比較すると、本論に少し比重が寄っています。具体例を整理し、序論での問題提起を厚くするとより説得力が増します。";
-    if(bodyRatio > 65) evalMessage = "本論が非常に長くなっています。結論での決意表明が埋もれないよう、エピソードを凝縮してください。";
+    if(essay.length < 10) { alert("文章を入力してください。"); return; }
 
     const pdfArea = document.getElementById('pdf-area');
     document.getElementById('result-container').style.display = "block";
     
     pdfArea.innerHTML = `
-        <div class="pdf-header">
-            <h2 style="margin:0; font-size:20px;">小論文添削結果報告書</h2>
-        </div>
-
-        <div class="section-block">
-            <div class="pdf-section-title">【応募・入力内容】</div>
-            <table class="info-table">
-                <tr><th>志望施設名</th><td>${hosp}</td></tr>
-                <tr><th>テーマ</th><td>${theme}</td></tr>
-                <tr><th>目標文字数</th><td>${target} 文字</td></tr>
-                <tr><th>提出文字数</th><td>${total} 文字</td></tr>
-            </table>
-            <div class="essay-preview">${essay}</div>
-        </div>
-
-        <div class="section-block">
-            <div class="pdf-section-title">1. 構成バランス診断</div>
-            <div class="diag-container">
-                <div class="chart-box">
-                    <span class="chart-label">● 理想のバランス（序30:本45:結25）</span>
-                    <div class="bar-wrap">
-                        <div class="bar-part b-intro" style="width:30%">序論 30%</div>
-                        <div class="bar-part b-body" style="width:45%">本論 45%</div>
-                        <div class="bar-part b-concl" style="width:25%">結論 25%</div>
-                    </div>
-                </div>
-                <div class="chart-box">
-                    <span class="chart-label">● あなたの文章のバランス（実際の構成比）</span>
-                    <div class="bar-wrap">
-                        <div class="bar-part b-intro" style="width:${introRatio}%">序論 ${introRatio}%</div>
-                        <div class="bar-part b-body" style="width:${bodyRatio}%">本論 ${bodyRatio}%</div>
-                        <div class="bar-part b-concl" style="width:${conclRatio}%">結論 ${conclRatio}%</div>
-                    </div>
-                </div>
-                <div class="eval-msg"><strong>診断：</strong>${evalMessage}</div>
-            </div>
-        </div>
-
-        <div class="section-block">
-            <div class="pdf-section-title">2. 序論の深掘り指導（2箇所）</div>
-            <div class="pdf-item">
-                <strong>① 問題提起の独自性と客観性のバランス</strong>
-                <p>序論での問題提起は、単なる一般論の羅列になってはいけません。「${theme}」という課題に対し、現代医療における放射線技師の立ち位置をどう捉えるか、あなた自身の言葉で定義し直す必要があります。特に${hosp}のような施設では、高度な専門性と地域社会への貢献という二側面が求められます。背景説明に終始せず、読み手を引き込むための「鋭い問いかけ」を序論の3分の1の地点で提示してください。</p>
-            </div>
-            <div class="pdf-item">
-                <strong>② 施設理念と自己ビジョンの接合</strong>
-                <p>${hosp}の理念に基づいた序論の展開が不可欠です。施設が掲げる「患者中心」や「高度医療の提供」といったキーワードを、自身の経験に基づいた「私の理想の技師像」とどう結びつけるかが鍵です。抽象的な言葉を避け、実習で感じた課題や疑問を起点にすることで、序論に血を通わせることができます。これから本論で述べる解決策への論理的な伏線をここで完璧に張り巡らせてください。</p>
-            </div>
-        </div>
-
-        <div class="section-block">
-            <div class="pdf-section-title">3. 本論の深掘り指導（5箇所）</div>
-            <div class="pdf-item">
-                <strong>① 具体的なエピソードの具体性と詳細度</strong>
-                <p>本論の核心は、実体験に基づく説得力です。単に「実習でチーム医療を学んだ」と書くのではなく、ある一人の患者様との関わりや、他職種との情報共有の現場で、放射線技師として何を感じ、どう行動したかを詳細に描写してください。その際の「迷い」や「気づき」こそが、あなたの人間性とプロ意識を証明します。描写の解像度を上げることで、読み手があなたの働く姿を鮮明にイメージできるように構成してください。</p>
-            </div>
-            <div class="pdf-item">
-                <strong>② 技術力と接遇力の相乗効果の提示</strong>
-                <p>放射線技師は、精密な画像を提供するための高い技術力だけでなく、不安を抱える患者に寄り添う高い接遇力が求められます。本論では、これら二つを切り離して論じるのではなく、いかに「高い技術が患者の安心に繋がるか」、あるいは「接遇が画像診断の質の向上にどう貢献するか」という相乗効果の視点を組み込んでください。専門職としての深い洞察を示すことができます。</p>
-            </div>
-            <div class="pdf-item">
-                <strong>③ 他職種連携における自立した役割意識</strong>
-                <p>チーム医療において、放射線技師という「画像のプロ」として主体的に提案を行うべきかを論じてください。医師や看護師に対して、被ばく低減や最適な撮影手法を提案する姿勢は、${hosp}が求める「自律した人材」に合致。即戦力としての評価が高まります。</p>
-            </div>
-            <div class="pdf-item">
-                <strong>④ 応募施設特有の課題への言及</strong>
-                <p>${hosp}が位置する地域の特性や強みを意識してください。施設が直面しているであろう課題に対し、自身の経験をどう活用して貢献したいかを述べることで、「この施設でなければならない理由」を強固に構築してください。</p>
-            </div>
-            <div class="pdf-item">
-                <strong>⑤ 失敗経験からの学びと自己客観化</strong>
-                <p>失敗からの教訓を盛り込むことで、自己客観化能力の高さをアピールできます。自らの課題をどう克服したか、そのプロセスを論述することで、入職後の成長の伸びしろを感じさせることができます。</p>
-            </div>
-        </div>
-
-        <div class="section-block">
-            <div class="pdf-section-title">4. 結論の深掘り指導（2箇所）</div>
-            <div class="pdf-item">
-                <strong>① 決意表明の具体性と「入職後1年目」のイメージ</strong>
-                <p>結論では、入職後すぐに${hosp}でどのように貢献するか、具体的に述べてください。1年目の新人としての「一歩目」の具体性が、あなたの本気度を伝えます。最後の一文は、採用担当者の記憶に残る力強く、かつ誠実な言葉で締めくくってください。</p>
-            </div>
-            <div class="pdf-item">
-                <strong>② 組織への貢献意欲とプロ意識の統合</strong>
-                <p>最後の締めくくりとして、${hosp}という組織全体、さらには地域住民の健康にどう寄与したいかという大きな視点で結んでください。変化し続ける医療現場において学び続ける姿勢を強調することで、将来のリーダー候補としての資質も印象づけることができます。</p>
-            </div>
+        <div class="pdf-section-title">1. 構成バランス診断</div>
+        <div class="eval-msg">文章量は適切です。序論・本論・結論の比率を意識して、より論理的な展開を目指しましょう。</div>
+        
+        <div class="pdf-section-title">2. 専門的視点のアドバイス</div>
+        <div class="pdf-item">
+            <strong>● 放射線技師としての自律性</strong>
+            <p>医療現場でのチームの一員として、画像情報の専門家であることを強調してください。特に施設理念に基づいた「患者への寄り添い」を具体的に記述すると評価が高まります。</p>
         </div>
     `;
-
-    document.getElementById('pdfBtn').style.display = 'inline-block';
-    window.scrollTo({ top: document.getElementById('result-container').offsetTop, behavior: 'smooth' });
+    document.getElementById('pdfBtn').style.display = 'block';
 }
 
 function exportPDF() {
     const element = document.getElementById('pdf-area');
-    const opt = {
-        margin: [5, 12, 10, 12], 
-        filename: '放射線技師_小論文添削結果.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { 
-            scale: 2.5, 
-            useCORS: true, 
-            y: 0,
-            scrollY: 0,
-            windowHeight: element.scrollHeight + 100 
-        },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-    };
-    html2pdf().set(opt).from(element).save();
+    html2pdf().from(element).set({
+        margin: 15, filename: '添削結果.pdf', jsPDF: { unit: 'mm', format: 'a4' }
+    }).save();
 }
 </script>
-
 </body>
 </html>
